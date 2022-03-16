@@ -1,0 +1,42 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+ 
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "extension": [
+          {
+            "url": "http://www.gehealthcare.com/fhir/StructureDefinition/observation-slotChannelId",
+            "valueQuantity": {
+              "value": 1
+            }
+          }
+        ],
+        "status": "registered",
+        "code": {
+          "coding": [
+            {
+              "code": "MDC_ECG_HEART_RATE",
+              "display": "MDC_ECG_HEART_RATE"
+            }
+          ],
+          "text": "MDC_ECG_HEART_RATE"
+        },
+        "subject": {
+          "reference": "Patient/Patient-0"
+        },
+        "effectiveDateTime": "2022-03-09T15:43:01.985+05:30",
+        "valueQuantity": {
+          "value": 50,
+          "unit": "{beat}/min",
+          "code": "MDC_DIM_BEAT_PER_MIN"
+        },
+        "device": {
+          "reference": "DeviceMetric/DM_NUMERIC_MDC_ECG_HEART_RATE-0"
+        }
+      }
+    }
+  ]
+}

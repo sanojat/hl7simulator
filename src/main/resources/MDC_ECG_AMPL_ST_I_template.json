@@ -1,0 +1,41 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "extension": [
+          {
+            "url": "http://www.gehealthcare.com/fhir/StructureDefinition/observation-slotChannelId",
+            "valueQuantity": {
+              "value": 1
+            }
+          }
+        ],
+        "status": "registered",
+        "code": {
+          "coding": [
+            {
+              "code": "MDC_ECG_AMPL_ST_I",
+              "display": "MDC_ECG_AMPL_ST_I"
+            }
+          ],
+          "text": "MDC_ECG_AMPL_ST_I"
+        },
+        "subject": {
+          "reference": "Patient/Patient-0"
+        },
+        "effectiveDateTime": "2022-03-09T15:43:01.982+05:30",
+        "valueQuantity": {
+          "value": 0.01,
+          "unit": "mm",
+          "code": "MDC_DIM_MILLI_VOLT"
+        },
+        "device": {
+          "reference": "DeviceMetric/DM_NUMERIC_MDC_ECG_AMPL_ST_I-0"
+        }
+      }
+    }
+  ]
+}

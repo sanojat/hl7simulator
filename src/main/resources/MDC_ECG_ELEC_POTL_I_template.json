@@ -1,0 +1,45 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "extension": [
+          {
+            "url": "http://www.gehealthcare.com/fhir/StructureDefinition/observation-slotChannelId",
+            "valueQuantity": {
+              "value": 1
+            }
+          }
+        ],
+        "status": "registered",
+        "code": {
+          "coding": [
+            {
+              "code": "150452",
+              "display": "MDC_ECG_ELEC_POTL_I"
+            }
+          ],
+          "text": "MDC_ECG_ELEC_POTL_I"
+        },
+        "subject": {
+          "reference": "Patient/Patient-0"
+        },
+        "effectiveDateTime": "2022-03-09T15:43:09.927+05:30",
+        "valueSampledData": {
+          "origin": {
+            "value": 0
+          },
+          "period": 4.166667,
+          "factor": 2.4,
+          "dimensions": 0,
+          "data": "-1 0 0 1 0 -1 0 0 1 0 0 0 0 0 -1 -1 0 1 2 0 0 0 0 0 -1 0 0 1 1 0 1 0 1 0 0 0 1 2 0 0 0 1 1 0 0 0 1 1 0 1 0 0 0 1 6 11 17 21 25 29"
+        },
+        "device": {
+          "reference": "DeviceMetric/DM_WAVE_MDC_ECG_ELEC_POTL_I-0"
+        }
+      }
+    }
+  ]
+}
