@@ -13,7 +13,6 @@ import org.hl7.fhir.r4.model.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hl7.learn.simulator.model.Hl7MessageConfig;
 import com.hl7.learn.simulator.model.ParameterConfig;
 import com.hl7.learn.simulator.type.DataType;
@@ -42,6 +41,9 @@ public class HL7DataBuilder {
 	 */
 	private static IParser parser = FhirContext.forR4().newJsonParser();
 
+	/**
+	 * 
+	 */
 	private static final String WAVEFORM_VALUE_CONNECTOR = " ";
 
 	/**
@@ -53,71 +55,14 @@ public class HL7DataBuilder {
 	 * @throws IOException
 	 */
 	public Bundle getData(DataType type, String patientId, ParameterConfig config) throws FHIRException, IOException {
-		Bundle bundle = null;
-		List<BundleEntryComponent> entryList = null;
-		BundleEntryComponent component = null;
-		Resource resource = null;
 		switch (type) {
 		case NUMERIC:
-			bundle = templateHandler.getNumericBundle(NumericParameter.valueOf(config.getParamName()));
-			entryList = bundle.getEntry();
-			component = entryList.get(0);
-			resource = component.getResource();
-			if (resource.getClass().equals(Observation.class)) {
-				Reference reference = new Reference();
-				reference.setReference("Patient/" + patientId);
-				Observation observation = (Observation) resource;
-				observation.setSubject(reference);
-				observation.setEffective(SimulatorHelper.getEffectiveDateTime());
-				if (ParamValueSelector.RANDOM.equals(config.getValueSelector())) {
-					Double value = SimulatorHelper.getRandomValue(config.getNumericValueList());
-					if (value % 10 == 0) {
-						observation.getValueQuantity().setValue(new BigDecimal(value));
-					} else {
-						observation.getValueQuantity().setValue(value);
-					}
-				}
-			}
-			return bundle;
+			return getNumericBundle(patientId, config);
 		case WAVEFORM:
-			bundle = templateHandler.getWaveformBundle(WaveformParameter.valueOf(config.getParamName()));
-			entryList = bundle.getEntry();
-			component = entryList.get(0);
-			resource = component.getResource();
-			if (resource.getClass().equals(Observation.class)) {
-				Reference reference = new Reference();
-				reference.setReference("Patient/" + patientId);
-				Observation observation = (Observation) resource;
-				observation.setSubject(reference);
-				observation.setEffective(SimulatorHelper.getEffectiveDateTime());
-				if (ParamValueSelector.SEQUENTIAL.equals(config.getValueSelector())) {
-					if (config.getSequentialCounter() >= config.getSequentialCounterMax()) {
-						config.setSequentialCounter(0);
-					}
-					if (config.getSequentialDataBlockLength() > 1) {
-						StringBuilder sb = new StringBuilder();
-						for (int i = 0; i < config.getSequentialDataBlockLength(); i++) {
-							if (config.getSequentialCounter() >= config.getSequentialCounterMax()) {
-								config.setSequentialCounter(0);
-							}
-							sb.append(config.getStringValueList().get(config.getSequentialCounter()))
-									.append(WAVEFORM_VALUE_CONNECTOR);
-							config.setSequentialCounter(config.getSequentialCounter() + 1);
-						}
-						// sb.deleteCharAt(sb.lastIndexOf(""));
-						observation.getValueSampledData().setData(sb.toString().trim());
-					} else {
-						observation.getValueSampledData()
-								.setData(config.getStringValueList().get(config.getSequentialCounter()));
-						config.setSequentialCounter(config.getSequentialCounter() + 1);
-					}
-				}
-			}
-			return bundle;
+			return getWaveformBundle(patientId, config);
 		default:
 			break;
 		}
-
 		return null;
 	}
 
@@ -130,7 +75,7 @@ public class HL7DataBuilder {
 	public String getMessage(Hl7MessageConfig messageConfig) throws FHIRException, IOException {
 		Bundle bundle = getMessageBundle(messageConfig);
 		return parser.encodeResourceToString(bundle);
-	}
+	}
 
 	/**
 	 * @param messageConfig
@@ -149,6 +94,80 @@ public class HL7DataBuilder {
 				e.printStackTrace();
 			}
 		});
+		return bundle;
+	}
+
+	/**
+	 * @param patientId
+	 * @param config
+	 * @return
+	 * @throws IOException
+	 * @throws FHIRException
+	 */
+	public Bundle getNumericBundle(String patientId, ParameterConfig config) throws IOException, FHIRException {
+		Bundle bundle = templateHandler.getNumericBundle(NumericParameter.valueOf(config.getParamName()));
+		List<BundleEntryComponent> entryList = bundle.getEntry();
+		BundleEntryComponent component = entryList.get(0);
+		Resource resource = component.getResource();
+		if (resource.getClass().equals(Observation.class)) {
+			Reference reference = new Reference();
+			reference.setReference("Patient/" + patientId);
+			Observation observation = (Observation) resource;
+			observation.setSubject(reference);
+			observation.setEffective(SimulatorHelper.getEffectiveDateTime());
+			if (ParamValueSelector.RANDOM.equals(config.getValueSelector())) {
+				Double value = SimulatorHelper.getRandomValue(config.getNumericValueList());
+				if (value % 10 == 0) {
+					observation.getValueQuantity().setValue(new BigDecimal(value));
+				} else {
+					observation.getValueQuantity().setValue(value);
+				}
+			}
+		}
+		return bundle;
+	}
+
+	/**
+	 * @param patientId
+	 * @param config
+	 * @return
+	 * @throws IOException
+	 * @throws FHIRException
+	 */
+	public Bundle getWaveformBundle(String patientId, ParameterConfig config) throws IOException, FHIRException {
+		Bundle bundle = templateHandler.getWaveformBundle(WaveformParameter.valueOf(config.getParamName()));
+		List<BundleEntryComponent> entryList = bundle.getEntry();
+		BundleEntryComponent component = entryList.get(0);
+		Resource resource = component.getResource();
+		if (resource.getClass().equals(Observation.class)) {
+			Reference reference = new Reference();
+			reference.setReference("Patient/" + patientId);
+			Observation observation = (Observation) resource;
+			observation.setSubject(reference);
+			observation.setEffective(SimulatorHelper.getEffectiveDateTime());
+			if (ParamValueSelector.SEQUENTIAL.equals(config.getValueSelector())) {
+				if (config.getSequentialCounter() >= config.getSequentialCounterMax()) {
+					config.setSequentialCounter(0);
+				}
+				if (config.getSequentialDataBlockLength() > 1) {
+					StringBuilder sb = new StringBuilder();
+					for (int i = 0; i < config.getSequentialDataBlockLength(); i++) {
+						if (config.getSequentialCounter() >= config.getSequentialCounterMax()) {
+							config.setSequentialCounter(0);
+						}
+						sb.append(config.getStringValueList().get(config.getSequentialCounter()))
+								.append(WAVEFORM_VALUE_CONNECTOR);
+						config.setSequentialCounter(config.getSequentialCounter() + 1);
+					}
+					// sb.deleteCharAt(sb.lastIndexOf(""));
+					observation.getValueSampledData().setData(sb.toString().trim());
+				} else {
+					observation.getValueSampledData()
+							.setData(config.getStringValueList().get(config.getSequentialCounter()));
+					config.setSequentialCounter(config.getSequentialCounter() + 1);
+				}
+			}
+		}
 		return bundle;
 	}
 
